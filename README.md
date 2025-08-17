@@ -1,9 +1,15 @@
-# Example-Expansion
-Example Expansion for MiniPlaceholders
+# ProxyConnection Expansion
 
-This example contains everything you need to create a functional MiniPlaceholders v3 expansion.
+This expansion allows you to obtain information from your proxy, whether it be Velocity(recommended) or bungeecord.
 
-Don't forget to modify the “expansion-provider.properties” file with the class that provides the expansion.
+Supports Fabric, Sponge, and Paper.
+
+However, in Fabric, it must be installed together with the https://modrinth.com/mod/fabric-plugin-messaging mod.
+This is done to ensure a standard usage of the Bungee plugin message channel.
+
+## Placeholders
+
+`<proxyconnection_player_count>`
 
 
-To create extensions for older versions of MiniPlaceholders, review the commit history, although it is always recommended to use the latest version
+`<proxyconnection_player_count:(server)>`
