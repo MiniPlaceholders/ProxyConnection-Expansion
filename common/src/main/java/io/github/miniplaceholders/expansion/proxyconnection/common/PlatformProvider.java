@@ -7,7 +7,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.regex.Pattern;
 
 public abstract class PlatformProvider<S, M> {
-    public static final String CHANNEL = "bungeecord:main";
+    public static final String LEGACY_CHANNEL = "BungeeCord";
+    public static final String MODERN_CHANNEL = "bungeecord:main";
     public static final Pattern SPLIT_PATTERN = Pattern.compile(", ");
     protected final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     protected S platformInstance;

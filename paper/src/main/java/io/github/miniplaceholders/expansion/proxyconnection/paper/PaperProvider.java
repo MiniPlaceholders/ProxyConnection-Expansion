@@ -23,9 +23,9 @@ public final class PaperProvider extends PlatformProvider<Server, JavaPlugin> im
 
     @Override
     public Expansion.Builder provideBuilder() {
-        platformInstance.getMessenger().registerOutgoingPluginChannel(miniInstance, CHANNEL);
-        platformInstance.getMessenger().registerIncomingPluginChannel(miniInstance, CHANNEL, this);
-        executor.schedule(() -> {
+        platformInstance.getMessenger().registerOutgoingPluginChannel(miniInstance, LEGACY_CHANNEL);
+        platformInstance.getMessenger().registerIncomingPluginChannel(miniInstance, LEGACY_CHANNEL, this);
+        executor.scheduleAtFixedRate(() -> {
             final var players = platformInstance.getOnlinePlayers().iterator();
             if (!players.hasNext()) {
                 return;
@@ -35,11 +35,11 @@ public final class PaperProvider extends PlatformProvider<Server, JavaPlugin> im
                 final ByteArrayDataOutput output = ByteStreams.newDataOutput();
                 output.writeUTF(BungeeMessageTypes.PLAYER_COUNT.rawType());
                 output.writeUTF(server);
-                player.sendPluginMessage(miniInstance, CHANNEL, output.toByteArray());
+                player.sendPluginMessage(miniInstance, LEGACY_CHANNEL, output.toByteArray());
             }
-        }, 5, TimeUnit.SECONDS);
+        }, 30, 7, TimeUnit.SECONDS);
 
-        executor.schedule(() -> {
+        executor.scheduleAtFixedRate(() -> {
             final var players = platformInstance.getOnlinePlayers().iterator();
             if (!players.hasNext()) {
                 return;
@@ -47,8 +47,8 @@ public final class PaperProvider extends PlatformProvider<Server, JavaPlugin> im
             final Player player = players.next();
             final ByteArrayDataOutput output = ByteStreams.newDataOutput();
             output.writeUTF(BungeeMessageTypes.GET_SERVERS.rawType());
-            player.sendPluginMessage(miniInstance, CHANNEL, output.toByteArray());
-        }, 10, TimeUnit.MINUTES);
+            player.sendPluginMessage(miniInstance, LEGACY_CHANNEL, output.toByteArray());
+        }, 1, 3, TimeUnit.MINUTES);
 
         return Expansion.builder("proxyconnection")
                 .globalPlaceholder("player_count", (queue, context) -> {
@@ -64,7 +64,7 @@ public final class PaperProvider extends PlatformProvider<Server, JavaPlugin> im
 
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
-        if (!channel.equals("BungeeCord")) {
+        if (!channel.equals(LEGACY_CHANNEL)) {
             return;
         }
         final ByteArrayDataInput in = ByteStreams.newDataInput(message);

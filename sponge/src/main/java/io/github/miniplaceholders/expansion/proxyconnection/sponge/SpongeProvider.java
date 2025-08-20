@@ -21,7 +21,7 @@ public final class SpongeProvider extends PlatformProvider<Server, Object> {
     public Expansion.Builder provideBuilder() {
         final RawDataChannel rawDataChannel = platformInstance.game()
                 .channelManager()
-                .ofType(ResourceKey.resolve(CHANNEL), RawDataChannel.class);
+                .ofType(ResourceKey.resolve(MODERN_CHANNEL), RawDataChannel.class);
         rawDataChannel.play()
                 .addHandler((data, state) -> {
                     final String subchannel = data.readUTF();
@@ -41,7 +41,7 @@ public final class SpongeProvider extends PlatformProvider<Server, Object> {
                         dataCache.updateServers(List.of(servers));
                     }
                 });
-        executor.schedule(() -> {
+        executor.scheduleAtFixedRate(() -> {
             final var players = platformInstance.onlinePlayers().iterator();
             if (!players.hasNext()) {
                 return;
@@ -53,9 +53,9 @@ public final class SpongeProvider extends PlatformProvider<Server, Object> {
                     buf.writeUTF(server);
                 });
             }
-        }, 5, TimeUnit.SECONDS);
+        }, 30, 7, TimeUnit.SECONDS);
 
-        executor.schedule(() -> {
+        executor.scheduleAtFixedRate(() -> {
             final var players = platformInstance.onlinePlayers().iterator();
             if (!players.hasNext()) {
                 return;
@@ -63,7 +63,7 @@ public final class SpongeProvider extends PlatformProvider<Server, Object> {
             final ServerPlayer player = players.next();
             rawDataChannel.play().sendTo(player,
                     buf -> buf.writeUTF(BungeeMessageTypes.GET_SERVERS.rawType()));
-        }, 10, TimeUnit.MINUTES);
+        }, 1, 3, TimeUnit.MINUTES);
 
         return Expansion.builder("proxyconnection")
                 .globalPlaceholder("player_count", (queue, context) -> {

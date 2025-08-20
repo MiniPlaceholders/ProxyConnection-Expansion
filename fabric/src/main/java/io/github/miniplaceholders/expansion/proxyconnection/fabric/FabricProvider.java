@@ -23,7 +23,7 @@ public final class FabricProvider extends PlatformProvider<MinecraftServer, Obje
 
     @Override
     public Expansion.Builder provideBuilder() {
-        executor.schedule(() -> {
+        executor.scheduleAtFixedRate(() -> {
             final var players = platformInstance.getPlayerList().getPlayers().iterator();
             if (!players.hasNext()) {
                 return;
@@ -35,9 +35,9 @@ public final class FabricProvider extends PlatformProvider<MinecraftServer, Obje
                 output.writeUTF(server);
                 ServerPlayNetworking.send(player, new PluginMessagePacket(output.toByteArray()));
             }
-        }, 5, TimeUnit.SECONDS);
+        }, 30, 7, TimeUnit.SECONDS);
 
-        executor.schedule(() -> {
+        executor.scheduleAtFixedRate(() -> {
             final var players = platformInstance.getPlayerList().getPlayers().iterator();
             if (!players.hasNext()) {
                 return;
@@ -46,7 +46,7 @@ public final class FabricProvider extends PlatformProvider<MinecraftServer, Obje
             final ByteArrayDataOutput output = ByteStreams.newDataOutput();
             output.writeUTF(BungeeMessageTypes.GET_SERVERS.rawType());
             ServerPlayNetworking.send(player, new PluginMessagePacket(output.toByteArray()));
-        }, 10, TimeUnit.MINUTES);
+        }, 1, 3, TimeUnit.MINUTES);
 
         PluginMessageEvent.EVENT.register((payload, context) -> {
             final ByteArrayDataInput data  = ByteStreams.newDataInput(payload.getData());
