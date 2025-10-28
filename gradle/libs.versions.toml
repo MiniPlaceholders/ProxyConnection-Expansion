@@ -34,7 +34,7 @@ adventure-api = { group = "net.kyori", name = "adventure-api", version.ref = "ad
 adventure-minimessage = { group = "net.kyori", name = "adventure-text-minimessage", version.ref = "adventure" }
 adventure-platform-fabric = { group = "net.kyori", name = "adventure-platform-fabric", version.ref = "adventurefabric" }
 
-caffeine = "com.github.ben-manes.caffeine:caffeine:3.2.2"
+caffeine = "com.github.ben-manes.caffeine:caffeine:3.2.3"
 
 [plugins]
 
