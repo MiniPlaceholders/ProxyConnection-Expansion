@@ -34,10 +34,13 @@ public final class ProxyConnectionExpansionProvider implements ExpansionProvider
 
     @Override
     public LoadRequirement loadRequirement() {
-        final LoadRequirement baseRequirement = LoadRequirement.platform(Platform.PAPER, Platform.FABRIC, Platform.SPONGE);
-        if (MiniPlaceholders.platform() == Platform.FABRIC) {
-            return LoadRequirement.allOf(LoadRequirement.requiredComplement("fabricpluginmessaging"), baseRequirement);
-        }
-        return baseRequirement;
+        return LoadRequirement.anyOf(
+            LoadRequirement.platform(Platform.PAPER),
+            LoadRequirement.platform(Platform.SPONGE),
+            LoadRequirement.allOf(
+                LoadRequirement.platform(Platform.FABRIC),
+                LoadRequirement.requiredComplement("fabricpluginmessaging")
+            )
+        );
     }
 }

@@ -16,15 +16,18 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public final class PaperProvider extends PlatformProvider<Server, JavaPlugin> implements PluginMessageListener {
+public final class PaperProvider extends PlatformProvider<Server, JavaPlugin> {
+    private final PluginMessageListenerWrapper listenerWrapper;
+
     public PaperProvider(Object platformInstance, Object miniInstance) {
         super((Server) platformInstance, (JavaPlugin) miniInstance);
+        this.listenerWrapper = new PluginMessageListenerWrapper();
     }
 
     @Override
     public Expansion.Builder provideBuilder() {
         platformInstance.getMessenger().registerOutgoingPluginChannel(miniInstance, LEGACY_CHANNEL);
-        platformInstance.getMessenger().registerIncomingPluginChannel(miniInstance, LEGACY_CHANNEL, this);
+        platformInstance.getMessenger().registerIncomingPluginChannel(miniInstance, LEGACY_CHANNEL, listenerWrapper);
         executor.scheduleAtFixedRate(() -> {
             final var players = platformInstance.getOnlinePlayers().iterator();
             if (!players.hasNext()) {
@@ -62,27 +65,29 @@ public final class PaperProvider extends PlatformProvider<Server, JavaPlugin> im
                 });
     }
 
-    @Override
-    public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
-        if (!channel.equals(LEGACY_CHANNEL)) {
-            return;
-        }
-        final ByteArrayDataInput in = ByteStreams.newDataInput(message);
-        final String subchannel = in.readUTF();
-        if (BungeeMessageTypes.PLAYER_COUNT.compareProvided(subchannel)) {
-            final String server = in.readUTF();
-            final int playerCount = in.readInt();
-            dataCache.setPlayerCount(server, playerCount);
-            return;
-        }
-
-        if (BungeeMessageTypes.GET_SERVERS.compareProvided(subchannel)) {
-            final String serversString = in.readUTF();
-            if (serversString.isEmpty()) {
+    private final class PluginMessageListenerWrapper implements PluginMessageListener {
+        @Override
+        public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte @NotNull [] message) {
+            if (!channel.equals(LEGACY_CHANNEL)) {
                 return;
             }
-            String[] servers = SPLIT_PATTERN.split(serversString);
-            dataCache.updateServers(List.of(servers));
+            final ByteArrayDataInput in = ByteStreams.newDataInput(message);
+            final String subchannel = in.readUTF();
+            if (BungeeMessageTypes.PLAYER_COUNT.compareProvided(subchannel)) {
+                final String server = in.readUTF();
+                final int playerCount = in.readInt();
+                PaperProvider.this.dataCache.setPlayerCount(server, playerCount);
+                return;
+            }
+
+            if (BungeeMessageTypes.GET_SERVERS.compareProvided(subchannel)) {
+                final String serversString = in.readUTF();
+                if (serversString.isEmpty()) {
+                    return;
+                }
+                String[] servers = SPLIT_PATTERN.split(serversString);
+                PaperProvider.this.dataCache.updateServers(List.of(servers));
+            }
         }
     }
 }
